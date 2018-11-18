@@ -3,42 +3,50 @@ import React, { Component } from 'react';
 import io from 'socket.io-client/dist/socket.io.js';
 
 var e;
+var mang = [
+    { t1: 'test thu1', t2: '1111' },
+    { t1: 'thest thu 2', t2: '2222' },
+    { t1: 'thest thu 3', t2: '33333' },
+
+];
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         e = this;
-        this.socket = io('http://192.168.0.105:3000' , { jsonp: false });
-     //   var ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.socket = io('http://192.168.0.104:3000', { jsonp: false });
+        var ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.state = {
-       //     dataSource: ds.cloneWithRows(''),
+            dataSource: ds.cloneWithRows(mang),
             maunen: '#517299',
             text: 'red',
+            id: '1',
         };
         this.socket.on('server-send-color', function (data) {
             e.setState({ 
+                id: data,
                 maunen: data,
                 text: data,
-         //       dataSource: ds.cloneWithRows(data),
+                dataSource: ds.cloneWithRows(data),
             });
             console.log(data);
         });
     }
 
     clickME() {
-        this.socket.emit('client-send-color', this.state.text);
+        var { text, id } = this.state;
+        this.socket.emit('client-send-color', ({ text, id }));
     }
 
-
-    /*
     taoHang(property) {
         return (
-            <View style={{ flex: 1, }}>
-                <Text>{property.text}</Text>  
+            <View style={{ flex: 1, }} key={property.id}>
+                <Text key={property.id} >{property.t1}</Text>  
+                <Text>{property.text}</Text>
             </View>
         );
     }
-    */
+    
 
     render() {
         return (
@@ -57,11 +65,15 @@ export default class App extends Component {
                         <Text>Doi mau </Text>
                 </TouchableOpacity>
 
+                <ListView
+                    dataSource={this.state.dataSource}
+                    renderRow={this.taoHang}
+                />
 
 {/* 
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={this.taohang}
+                    renderRow={this.taoHang}
                 />
 
 */}
